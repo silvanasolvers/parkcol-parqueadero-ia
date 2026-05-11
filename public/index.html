@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Parkcol × Solvers — Parqueadero Inteligente</title>
+  <meta name="description" content="Experiencia interactiva para diagnosticar la automatización inteligente del parqueadero Parkcol." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;650;750;850&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+  <header class="topbar">
+    <img src="/assets/solvers-logo.png" alt="Solvers" class="logo" />
+    <nav>
+      <a href="#experience">Experiencia</a>
+      <a href="#questions">Diagnóstico</a>
+      <a href="#next">Siguiente paso</a>
+    </nav>
+    <a class="top-cta" href="#questions">Iniciar recorrido</a>
+  </header>
+
+  <main>
+    <section class="hero" id="experience">
+      <div class="orb orb-a"></div>
+      <div class="orb orb-b"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">Parkcol × SolversAI</p>
+        <h1>Un parqueadero que se entiende antes de automatizarse.</h1>
+        <p class="lead">Diseñamos esta experiencia como un recorrido: cada carro que entra revela una pregunta clave para construir una solución realista de IA, pagos y control de acceso.</p>
+        <div class="hero-actions">
+          <a class="primary" href="#questions">Recorrer diagnóstico</a>
+          <span class="hint">Scroll para vivir la operación</span>
+        </div>
+      </div>
+      <div class="hero-stage" aria-hidden="true">
+        <div class="city-grid"></div>
+        <div class="parking-gate"><span></span><b>ACCESS NODE</b></div>
+        <div class="scanner-ring"></div>
+        <div class="mini-car car-one"><i></i></div>
+        <div class="mini-car car-two"><i></i></div>
+        <div class="mini-car car-three"><i></i></div>
+        <div class="ticket-panel">
+          <small>Parkcol OS</small>
+          <strong>Diagnóstico activo</strong>
+          <em>IA · Pagos · Cámaras · Flujo</em>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro-panel">
+      <div>
+        <p class="eyebrow">Discovery brief</p>
+        <h2>Preguntas cortas. Información crítica.</h2>
+      </div>
+      <p>El objetivo no es llenar un formulario eterno. Es entender la operación actual de Parkcol para saber qué se puede automatizar, qué equipos se aprovechan y qué propuesta tiene sentido.</p>
+    </section>
+
+    <section class="scroll-world" id="questions">
+      <div class="world-sticky">
+        <div class="hud">
+          <span>Parkcol Diagnostic Route</span>
+          <strong id="progressLabel">0%</strong>
+        </div>
+        <div class="progress"><span id="progressBar"></span></div>
+        <div class="road-system">
+          <div class="road road-left"></div>
+          <div class="road road-right"></div>
+          <div class="entry-gate"><span>ENTRADA</span></div>
+          <div class="exit-gate"><span>SALIDA</span></div>
+          <div class="pay-kiosk"><b>PAY</b><small>QR</small></div>
+          <div class="camera cam-a"></div>
+          <div class="camera cam-b"></div>
+          <div class="camera cam-c"></div>
+          <div class="car-track" id="carTrack"><div class="game-car"><span></span></div></div>
+          <div class="parking-slots">
+            <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          </div>
+        </div>
+        <article class="question-card" id="questionCard">
+          <p class="card-kicker" id="cardKicker">Checkpoint 01</p>
+          <h3 id="questionTitle">¿Cómo funciona hoy el ingreso y salida de los vehículos?</h3>
+          <p id="questionMeta">Primero entendemos el flujo real antes de hablar de tecnología.</p>
+        </article>
+      </div>
+
+      <div class="steps" aria-label="Preguntas del diagnóstico">
+        <div class="step" data-kicker="Checkpoint 01" data-question="¿Cómo funciona hoy el ingreso y salida de los vehículos?" data-meta="Primero entendemos el flujo real antes de hablar de tecnología."></div>
+        <div class="step" data-kicker="Checkpoint 02" data-question="¿Qué proveedores o sistemas usan actualmente?" data-meta="Esto nos dice qué se puede integrar, reemplazar o aprovechar."></div>
+        <div class="step" data-kicker="Checkpoint 03" data-question="¿Cuántas cámaras tienen y dónde están ubicadas?" data-meta="La ubicación define si podemos leer placas, auditar flujo o medir ocupación."></div>
+        <div class="step" data-kicker="Checkpoint 04" data-question="¿Tienen talanqueras o control de acceso automático?" data-meta="Validamos si el acceso puede automatizarse desde el primer alcance."></div>
+        <div class="step" data-kicker="Checkpoint 05" data-question="¿Qué métodos de pago reciben hoy?" data-meta="Efectivo, QR, datáfono o pasarela cambian el diseño del sistema."></div>
+        <div class="step" data-kicker="Checkpoint 06" data-question="¿Cuál es la capacidad total del parqueadero?" data-meta="La capacidad marca el tamaño de la operación y la lógica de cupos."></div>
+        <div class="step" data-kicker="Checkpoint 07" data-question="¿Cuántos vehículos entran aproximadamente al día?" data-meta="El volumen ayuda a estimar impacto, retorno y prioridad de automatización."></div>
+        <div class="step" data-kicker="Checkpoint 08" data-question="¿Cuánto personal hay por turno?" data-meta="Medimos cuánto costo operativo podría reducirse o reubicarse."></div>
+        <div class="step" data-kicker="Checkpoint 09" data-question="¿Qué turnos manejan y en qué horarios?" data-meta="El horario determina soporte, monitoreo y operación 24/7."></div>
+        <div class="step" data-kicker="Checkpoint 10" data-question="¿Cuál es el principal problema: costos, filas, pagos, seguridad o control?" data-meta="La solución debe atacar el dolor real, no solo verse tecnológica."></div>
+        <div class="step" data-kicker="Checkpoint 11" data-question="¿Qué les gustaría automatizar primero?" data-meta="Priorizamos una fase inicial de alto impacto y bajo riesgo."></div>
+        <div class="step" data-kicker="Checkpoint 12" data-question="¿Quieren eliminar todo el personal o dejar alguien solo para soporte?" data-meta="Definimos si el modelo es cero operación humana o supervisión mínima."></div>
+        <div class="step" data-kicker="Checkpoint 13" data-question="¿Tienen internet estable en el parqueadero?" data-meta="La conectividad define si vamos cloud, local o híbrido."></div>
+        <div class="step" data-kicker="Checkpoint 14" data-question="¿Tienen presupuesto estimado o quieren que propongamos opciones?" data-meta="Podemos presentar escenarios: básico, intermedio o full IA."></div>
+        <div class="step" data-kicker="Checkpoint 15" data-question="¿Podemos hacer visita técnica o recibir fotos/videos de entrada, salida, caja y cámaras?" data-meta="Con evidencia visual cerramos una propuesta más precisa."></div>
+      </div>
+    </section>
+
+    <section class="solution">
+      <p class="eyebrow">Visión de solución</p>
+      <h2>De parqueadero manual a operación inteligente.</h2>
+      <div class="solution-grid">
+        <div class="solution-card"><span>01</span><h3>Control de acceso</h3><p>Lectura de placa, validación de ingreso y apertura de talanquera.</p></div>
+        <div class="solution-card"><span>02</span><h3>Pagos conectados</h3><p>QR, pasarela, validación de pago y reducción gradual de efectivo.</p></div>
+        <div class="solution-card"><span>03</span><h3>IA operativa</h3><p>Alertas, anomalías, ocupación, reportes y decisiones automáticas.</p></div>
+        <div class="solution-card"><span>04</span><h3>Dashboard</h3><p>Ingresos, flujo, vehículos, horarios pico y visibilidad administrativa.</p></div>
+      </div>
+    </section>
+
+    <section class="next" id="next">
+      <div class="next-card">
+        <p class="eyebrow">Siguiente paso</p>
+        <h2>Con estas respuestas, Solvers diseña la ruta de automatización de Parkcol.</h2>
+        <p>Podemos armar la propuesta en fases: diagnóstico técnico, automatización inicial, pagos digitales y operación inteligente con IA.</p>
+        <a class="primary" href="mailto:solvers.solvers@gmail.com?subject=Parkcol%20-%20Diagnóstico%20Parqueadero%20IA">Enviar información a Solvers</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="/script.js"></script>
+</body>
+</html>
