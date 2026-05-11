@@ -245,3 +245,20 @@ nav{display:flex;gap:24px;color:#cbd3ef;font-size:13px}nav a{opacity:.85}
   .lead{font-size:17px!important;max-width:590px!important;}
   .hero-stage{height:520px!important;max-width:520px!important;}
 }
+
+/* Desktop readability emergency fix: generous line-height so letters never overlap */
+@media(min-width:981px){
+  .hero h1{
+    font-size:clamp(42px,3.9vw,56px)!important;
+    line-height:1.16!important;
+    letter-spacing:-.045em!important;
+    max-width:720px!important;
+    text-wrap:balance!important;
+  }
+  .solution h2,
+  .next h2,
+  .intro-panel h2{
+    line-height:1.12!important;
+    letter-spacing:-.045em!important;
+  }
+}
