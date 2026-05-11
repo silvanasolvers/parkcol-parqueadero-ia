@@ -26,8 +26,10 @@ function updateWorld() {
   }
 
   const carTravel = Math.min(1, Math.max(0, (pct * steps.length % 1)));
-  const y = carTravel * (window.innerHeight - 450);
-  const laneShift = idx % 2 === 0 ? -72 : 74;
+  const isMobile = window.innerWidth < 680;
+  const yLimit = isMobile ? 210 : Math.min(360, Math.max(220, window.innerHeight - 470));
+  const y = carTravel * yLimit;
+  const laneShift = idx % 2 === 0 ? (isMobile ? -42 : -72) : (isMobile ? 44 : 74);
   car.style.transform = `translate(${laneShift}px, ${y}px) rotate(${idx % 2 === 0 ? -2 : 2}deg)`;
   progressBar.style.width = `${Math.round(pct * 100)}%`;
   progressLabel.textContent = `${Math.round(pct * 100)}%`;
