@@ -222,3 +222,26 @@ nav{display:flex;gap:24px;color:#cbd3ef;font-size:13px}nav a{opacity:.85}
   .intro-panel h2{font-size:31px!important;max-width:310px!important;}
   .intro-panel p:last-child{font-size:14.5px!important;}
 }
+
+/* Desktop polish: keep the hero premium, readable and not oversized */
+@media(min-width:981px){
+  .hero{grid-template-columns:minmax(470px, .9fr) minmax(520px, 1.1fr)!important;gap:64px!important;padding-top:118px!important;align-items:center!important;}
+  .hero h1{font-size:clamp(54px,5vw,72px)!important;line-height:.96!important;letter-spacing:-.062em!important;max-width:640px!important;margin:16px 0 18px!important;}
+  .lead{max-width:610px!important;font-size:18px!important;line-height:1.5!important;}
+  .hero-stage{height:560px!important;max-width:560px!important;width:100%!important;justify-self:end!important;border-radius:34px!important;}
+  .hero-stage .parking-gate{width:360px!important;}
+  .hero-stage .parking-gate span{width:260px!important;}
+  .hero-stage .ticket-panel{top:225px!important;right:24px!important;width:170px!important;}
+  .hero-stage .booth{right:24px!important;width:124px!important;height:132px!important;}
+  .hero-stage .lpr-camera{left:28px!important;top:150px!important;}
+  .hero-stage .main-car{top:288px!important;}
+  .hero-stage .waiting-car{top:405px!important;left:84px!important;}
+}
+
+/* Desktop hero final balance: avoid orphan words and excessive line breaks */
+@media(min-width:981px){
+  .hero{grid-template-columns:minmax(560px,1.08fr) minmax(470px,.92fr)!important;gap:50px!important;}
+  .hero h1{font-size:clamp(48px,4.35vw,60px)!important;line-height:.98!important;max-width:690px!important;}
+  .lead{font-size:17px!important;max-width:590px!important;}
+  .hero-stage{height:520px!important;max-width:520px!important;}
+}
