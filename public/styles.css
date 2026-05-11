@@ -171,3 +171,54 @@ nav{display:flex;gap:24px;color:#cbd3ef;font-size:13px}nav a{opacity:.85}
   .scroll-world{height:1800vh!important;min-height:1800vh!important;}
   .step{height:120vh!important;}
 }
+
+/* Mobile hero information layout: clear, stacked, no overlapping labels */
+@media(max-width:680px){
+  .hero{padding-top:104px!important;padding-bottom:44px!important;gap:26px!important;}
+  .hero-actions{gap:12px!important;margin-top:22px!important;}
+  .hint{display:block;font-size:13px;line-height:1.35;}
+  .hero-stage{height:520px!important;border-radius:28px!important;overflow:hidden!important;}
+  .hero-stage .stage-title{top:18px!important;width:calc(100% - 42px)!important;padding:9px 12px!important;font-size:10px!important;letter-spacing:.16em!important;}
+  .hero-stage .hero-road{top:92px!important;bottom:-22px!important;width:168px!important;transform:translateX(-50%) perspective(560px) rotateX(50deg)!important;}
+  .hero-stage .parking-gate{top:82px!important;width:292px!important;height:58px!important;border-radius:19px!important;}
+  .hero-stage .parking-gate b{top:13px!important;font-size:9.5px!important;letter-spacing:.12em!important;white-space:nowrap!important;}
+  .hero-stage .parking-gate span{width:216px!important;height:3px!important;bottom:14px!important;}
+  .hero-stage .scan-zone{top:178px!important;width:178px!important;height:88px!important;border-radius:26px!important;opacity:.72!important;}
+  .hero-stage .scan-zone small{display:none!important;}
+  .hero-stage .lpr-camera{top:154px!important;left:18px!important;width:104px!important;height:74px!important;border-radius:18px!important;gap:7px!important;z-index:9!important;}
+  .hero-stage .lpr-camera span{width:26px!important;height:26px!important;}
+  .hero-stage .lpr-camera span:after{left:74px!important;top:37px!important;width:95px!important;opacity:.7!important;}
+  .hero-stage .lpr-camera b{font-size:8px!important;line-height:1.15!important;letter-spacing:.08em!important;}
+  .hero-stage .main-car{top:272px!important;left:50%!important;width:68px!important;height:110px!important;border-radius:20px!important;z-index:8!important;}
+  .hero-stage .main-car i{top:19px!important;left:12px!important;right:12px!important;height:31px!important;}
+  .hero-stage .main-car b{font-size:7px!important;bottom:13px!important;left:10px!important;right:10px!important;height:18px!important;}
+  .hero-stage .waiting-car{top:402px!important;left:44px!important;width:54px!important;height:88px!important;opacity:.82!important;z-index:5!important;}
+  .hero-stage .ticket-panel{top:236px!important;right:16px!important;width:126px!important;padding:11px!important;border-radius:17px!important;z-index:9!important;}
+  .hero-stage .ticket-panel small{font-size:8px!important;margin-bottom:4px!important;}
+  .hero-stage .ticket-panel strong{font-size:12px!important;line-height:1.08!important;margin:3px 0 4px!important;}
+  .hero-stage .ticket-panel em{font-size:9px!important;line-height:1.2!important;}
+  .hero-stage .booth{right:18px!important;bottom:28px!important;width:104px!important;height:112px!important;border-radius:18px!important;z-index:7!important;}
+  .hero-stage .booth:before{top:16px!important;width:52px!important;height:46px!important;border-radius:12px!important;}
+  .hero-stage .booth small{top:72px!important;font-size:8px!important;line-height:1.05!important;width:86px!important;}
+  .hero-stage .booth strong{bottom:11px!important;font-size:18px!important;}
+}
+@media(max-width:420px){
+  .hero-stage{height:500px!important;}
+  .hero-stage .parking-gate{width:270px!important;}
+  .hero-stage .lpr-camera{width:96px!important;left:16px!important;}
+  .hero-stage .ticket-panel{right:14px!important;width:118px!important;}
+  .hero-stage .booth{width:96px!important;right:14px!important;}
+  .hero-stage .waiting-car{left:38px!important;}
+}
+
+/* Mobile intro/discovery information: readable section, not oversized or cut awkwardly */
+@media(max-width:680px){
+  .intro-panel{width:calc(100% - 32px)!important;margin:0 auto!important;padding:46px 0 34px!important;display:block!important;border-top:1px solid rgba(255,255,255,.10)!important;}
+  .intro-panel .eyebrow{font-size:10px!important;letter-spacing:.22em!important;margin-bottom:12px!important;display:block!important;}
+  .intro-panel h2{font-size:34px!important;line-height:1.02!important;letter-spacing:-.055em!important;margin:0 0 18px!important;max-width:340px!important;}
+  .intro-panel p:last-child{font-size:15px!important;line-height:1.5!important;color:#d7dcf2!important;background:rgba(255,255,255,.055)!important;border:1px solid rgba(255,255,255,.11)!important;border-radius:22px!important;padding:18px!important;margin:0!important;}
+}
+@media(max-width:420px){
+  .intro-panel h2{font-size:31px!important;max-width:310px!important;}
+  .intro-panel p:last-child{font-size:14.5px!important;}
+}
