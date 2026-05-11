@@ -158,3 +158,16 @@ nav{display:flex;gap:24px;color:#cbd3ef;font-size:13px}nav a{opacity:.85}
   .scroll-world .road-system{top:34%!important;height:240px!important;}
   .scroll-world .question-card{bottom:20px!important;min-height:270px!important;}
 }
+
+/* Reading pace: each question gets almost a full screen of scroll time */
+.scroll-world{height:1500vh!important;min-height:1500vh!important;}
+.step{height:100vh!important;}
+@media(max-width:980px){
+  .scroll-world{height:1650vh!important;min-height:1650vh!important;}
+  .step{height:110vh!important;}
+  .card-kicker{font-size:11px;line-height:1.15;}
+}
+@media(max-width:420px){
+  .scroll-world{height:1800vh!important;min-height:1800vh!important;}
+  .step{height:120vh!important;}
+}

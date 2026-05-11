@@ -16,17 +16,21 @@ function updateWorld() {
   const pct = max ? scrolled / max : 0;
   const idx = Math.min(steps.length - 1, Math.max(0, Math.floor(pct * steps.length)));
 
+  const isMobile = window.innerWidth < 980;
+
   if (idx !== active) {
     active = idx;
     const s = steps[idx].dataset;
-    card.animate([{opacity:.35, transform:'translateY(-45%) scale(.98)'},{opacity:1, transform:'translateY(-50%) scale(1)'}], {duration:340, easing:'cubic-bezier(.2,.8,.2,1)'});
-    kicker.textContent = s.kicker;
+    const animation = isMobile
+      ? [{opacity:.45, transform:'translateY(14px) scale(.98)'},{opacity:1, transform:'translateY(0) scale(1)'}]
+      : [{opacity:.35, transform:'translateY(-45%) scale(.98)'},{opacity:1, transform:'translateY(-50%) scale(1)'}];
+    card.animate(animation, {duration:420, easing:'cubic-bezier(.2,.8,.2,1)'});
+    kicker.textContent = `${s.kicker} · ${idx + 1}/${steps.length}`;
     title.textContent = s.question;
     meta.textContent = s.meta;
   }
 
   const carTravel = Math.min(1, Math.max(0, (pct * steps.length % 1)));
-  const isMobile = window.innerWidth < 680;
   const yLimit = isMobile ? 210 : Math.min(360, Math.max(220, window.innerHeight - 470));
   const y = carTravel * yLimit;
   const laneShift = idx % 2 === 0 ? (isMobile ? -42 : -72) : (isMobile ? 44 : 74);
