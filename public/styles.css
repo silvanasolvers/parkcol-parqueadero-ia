@@ -73,3 +73,88 @@ nav{display:flex;gap:24px;color:#cbd3ef;font-size:13px}nav a{opacity:.85}
 @media(max-width:420px){.hero h1{font-size:35px;max-width:340px}.lead{max-width:340px;font-size:15px}}
 @media(max-width:380px){.hero h1{font-size:32px;max-width:316px}.lead{max-width:316px}}
 @media(max-width:680px){.hero-stage .ticket-panel{right:22px;width:124px}.hero-stage .ticket-panel small{font-size:9px}.hero-stage .ticket-panel strong{font-size:12px}.hero-stage .ticket-panel em{font-size:9px}}
+
+/* --- Mobile scroll repair: same checkpoint experience as desktop, no stacked/overlapped cards --- */
+@media(max-width:980px){
+  .scroll-world{height:760vh;min-height:760vh;position:relative;}
+  .world-sticky{position:sticky;top:0;height:100svh;min-height:100svh;padding:0;overflow:hidden;background:radial-gradient(circle at 50% 14%,rgba(142,98,255,.16),transparent 34%),#070913;}
+  .world-sticky:before{top:92px;font-size:28px;line-height:1.02;width:calc(100% - 34px);z-index:8;}
+  .world-sticky:after{top:128px;font-size:12px;line-height:1.32;width:calc(100% - 44px);z-index:8;}
+  .hud{top:74px;width:calc(100% - 32px);font-size:10px;letter-spacing:.09em;z-index:12;}
+  .progress{top:103px;width:calc(100% - 32px);height:4px;border-radius:999px;overflow:hidden;z-index:12;background:rgba(255,255,255,.12);}
+  .road-system{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%);width:calc(100% - 32px);height:310px;margin:0;border-radius:26px;z-index:2;}
+  .road-system:before{top:14px;left:18px;font-size:10px;}
+  .road-system:after{inset:54px 20px 38px;border-radius:20px;}
+  .entry-gate{top:58px;width:250px;height:38px;font-size:10px;letter-spacing:.16em;}
+  .exit-gate{bottom:26px;width:250px;height:38px;font-size:10px;letter-spacing:.16em;}
+  .road{top:72px;bottom:58px;width:68px;}
+  .road-left{left:calc(50% - 74px)}
+  .road-right{left:calc(50% + 8px)}
+  .car-track{top:86px;width:170px;height:220px;}
+  .game-car{left:54px;width:62px;height:100px;border-radius:18px;}
+  .game-car span{left:12px;right:12px;top:18px;height:28px;}
+  .pay-kiosk{right:16px;top:48%;width:64px;height:82px;border-radius:16px;}
+  .pay-kiosk:before{display:none;}
+  .pay-kiosk b{font-size:16px}.pay-kiosk small{font-size:10px;}
+  .parking-slots{left:16px;top:174px;grid-template-columns:repeat(2,42px);gap:8px;}
+  .parking-slots:before{display:none;}
+  .parking-slots i{height:30px;border-radius:8px;}
+  .camera{display:none;}
+  .question-card{position:absolute;left:16px;right:16px;bottom:22px;top:auto;transform:none;width:auto;max-width:none;min-height:226px;margin:0;padding:22px 20px 32px;border-radius:24px;z-index:10;background:rgba(10,13,28,.92);}
+  .question-card h3{font-size:25px;line-height:1.08;letter-spacing:-.045em;margin:0 0 14px;}
+  .question-card p:last-child{font-size:14.5px;line-height:1.42;padding-right:0;}
+  .question-card:after{right:20px;bottom:14px;font-size:9px;}
+  .steps{position:absolute;inset:0;display:block;width:auto;margin:0;pointer-events:none;}
+  .step{height:50.6vh;min-height:0;padding:0;border:0;background:transparent;border-radius:0;}
+  .step:before,.step:after{content:none!important;display:none!important;}
+}
+@media(max-width:680px){
+  .world-sticky:before{top:88px;font-size:24px;}
+  .world-sticky:after{top:120px;font-size:11.5px;}
+  .hud{top:72px;}
+  .progress{top:99px;}
+  .road-system{top:41%;height:286px;width:calc(100% - 28px);}
+  .question-card{left:14px;right:14px;bottom:18px;min-height:236px;padding:20px 18px 30px;}
+  .question-card h3{font-size:23px;line-height:1.08;}
+  .question-card p:last-child{font-size:14px;}
+}
+@media(max-width:420px){
+  .scroll-world{height:800vh;min-height:800vh;}
+  .world-sticky:before{top:84px;font-size:22px;}
+  .world-sticky:after{top:112px;width:calc(100% - 36px);font-size:11px;}
+  .hud{top:70px;width:calc(100% - 26px);}
+  .progress{top:96px;width:calc(100% - 26px);}
+  .road-system{top:39%;height:250px;width:calc(100% - 24px);}
+  .road-system:before{font-size:9px;}
+  .entry-gate,.exit-gate{width:214px;height:34px;font-size:9px;}
+  .road{width:58px;top:66px;bottom:52px;}
+  .road-left{left:calc(50% - 64px)}
+  .road-right{left:calc(50% + 4px)}
+  .car-track{top:82px;width:142px;height:180px;}
+  .game-car{left:40px;width:54px;height:86px;}
+  .pay-kiosk{width:56px;height:68px;right:10px;}
+  .parking-slots{display:none;}
+  .question-card{min-height:252px;bottom:16px;padding:19px 17px 30px;border-radius:22px;}
+  .question-card h3{font-size:21px;line-height:1.12;}
+  .question-card p:last-child{font-size:13.5px;line-height:1.38;}
+}
+
+/* Final mobile checkpoint pass: progress bar only at top, no header text overlap */
+@media(max-width:980px){
+  .scroll-world .world-sticky:before,
+  .scroll-world .world-sticky:after{display:none!important;content:none!important;}
+  .scroll-world .hud{top:76px!important;}
+  .scroll-world .progress{top:104px!important;}
+  .scroll-world .road-system{top:36%!important;height:292px!important;}
+  .scroll-world .question-card{bottom:24px!important;min-height:244px!important;display:block!important;}
+}
+@media(max-width:680px){
+  .scroll-world .hud{top:74px!important;}
+  .scroll-world .progress{top:102px!important;}
+  .scroll-world .road-system{top:35%!important;height:272px!important;}
+  .scroll-world .question-card{bottom:22px!important;min-height:252px!important;}
+}
+@media(max-width:420px){
+  .scroll-world .road-system{top:34%!important;height:240px!important;}
+  .scroll-world .question-card{bottom:20px!important;min-height:270px!important;}
+}
