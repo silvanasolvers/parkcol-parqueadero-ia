@@ -322,3 +322,81 @@ input:focus, select:focus { border-color: rgba(30,99,233,.38); box-shadow: 0 0 0
   .big-action em { margin-left: 0; }
   .console-actions, .status-steps { grid-template-columns: 1fr; }
 }
+
+/* Responsive hardening */
+html, body, #root { width: 100%; max-width: 100%; overflow-x: hidden; }
+.system-page, .login-page { width: 100%; max-width: 100vw; overflow-x: hidden; }
+.panel, .login-card, .wow-panel, .automation-story, .metric, .big-action { min-width: 0; }
+.brand-lockup, .panel-title, .metric, .big-action, .result-message, .qr-live, .qr-card, .sales-note { min-width: 0; }
+.brand-lockup > div, .panel-title > div, .metric > div, .big-action > div, .qr-card > div, .qr-live > div { min-width: 0; }
+.brand-lockup strong, .brand-lockup small, .panel-title strong, .panel-title small, .big-action strong, .big-action small, .metric strong, .metric span { overflow-wrap: anywhere; }
+
+@media (max-width: 920px) {
+  .system-page { padding: 18px; }
+  .app-header { align-items: flex-start; }
+  .wow-panel { min-height: unset; }
+  .holo-stage { min-height: 380px; }
+  .metrics-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .main-grid, .bottom-grid { grid-template-columns: 1fr; }
+  .action-panel { order: -1; }
+  .action-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .big-action { min-height: 116px; align-items: flex-start; flex-direction: column; }
+  .big-action em { margin-left: 0; }
+}
+
+@media (max-width: 560px) {
+  .system-page { padding: 14px; }
+  .login-page { padding: 14px; gap: 16px; }
+  .pitch-panel h1 { font-size: clamp(38px, 13vw, 52px); }
+  .pitch-panel p { font-size: 16px; }
+  .pitch-points { gap: 8px; }
+  .pitch-points span { width: 100%; justify-content: flex-start; }
+  .login-card, .panel { border-radius: 24px; padding: 14px; }
+  .app-header { gap: 12px; }
+  .header-actions { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+  .header-actions .ghost { width: 100%; padding: 11px 10px; }
+  .attention-strip h1 { font-size: clamp(34px, 11vw, 46px); }
+  .attention-strip p { font-size: 15px; }
+  .metrics-row, .action-grid, .manual-form, .cash-cards, .console-actions, .status-steps { grid-template-columns: 1fr; }
+  .metric strong { font-size: 26px; }
+  .wow-panel { border-radius: 26px; }
+  .wow-copy { padding: 18px; }
+  .wow-copy h2 { font-size: clamp(32px, 11vw, 44px); }
+  .wow-copy p { font-size: 15px; }
+  .holo-stage { min-height: 330px; }
+  .ai-robot { right: 20%; top: 38px; width: 132px; transform-origin: center; }
+  .robot-head { width: 122px; height: 88px; border-radius: 28px; gap: 18px; }
+  .robot-body { width: 92px; height: 62px; border-radius: 23px; }
+  .robot-body span { font-size: 23px; }
+  .scan-beam { right: 10%; top: 140px; width: 240px; height: 110px; }
+  .smart-road { left: 14px; right: 14px; bottom: 20px; height: 94px; border-radius: 22px; }
+  .moving-car { top: 30px; }
+  .plate-float { left: 12px; top: 18px; }
+  .pay-float { right: 12px; top: 18px; }
+  .exit-float { right: 18px; bottom: 128px; }
+  .floating-card { padding: 8px 10px; border-radius: 14px; }
+  .floating-card strong { font-size: 16px; }
+  .floating-card small { font-size: 11px; }
+  .story-head h2 { font-size: clamp(25px, 8vw, 34px); }
+  .compare-card { min-height: auto; padding: 15px; }
+  .compare-card strong { font-size: 20px; }
+  .camera-stage { height: 300px; }
+  .plate-focus { min-width: 78%; padding: 20px 14px; }
+  .plate-focus strong { font-size: clamp(48px, 16vw, 68px); }
+  .manual-form .primary { width: 100%; }
+  .vehicle { grid-template-columns: 1fr 1fr; }
+  .vehicle strong { grid-column: 1 / -1; }
+  .operation-console { padding: 12px; border-radius: 20px; }
+  .qr-live, .qr-card { align-items: flex-start; flex-direction: column; }
+}
+
+@media (max-width: 380px) {
+  .system-page { padding: 10px; }
+  .brand-mark { width: 44px; height: 44px; border-radius: 14px; }
+  .brand-lockup strong { font-size: 16px; }
+  .header-actions { grid-template-columns: 1fr; }
+  .plate-focus strong { font-size: 44px; }
+  .big-action { padding: 13px; }
+  .holo-stage { min-height: 300px; }
+  .ai-robot { right: 14%; transform: scale(.85); }
+}
