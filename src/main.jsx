@@ -115,6 +115,47 @@ function ActionButton({ icon: Icon, title, subtitle, onClick, tone = 'blue' }) {
   </button>;
 }
 
+
+function WowAutomation({ onRun }) {
+  return <section className="wow-panel">
+    <div className="wow-copy">
+      <Pill>Modo futuro Parkcol</Pill>
+      <h2>Un operador IA vigilando ingreso, pago y salida en tiempo real.</h2>
+      <p>La idea visual: Parkcol ya no depende de perseguir placas y recibos. El sistema ve, decide y avisa.</p>
+      <button className="primary" onClick={onRun}><Zap size={17} /> Activar escena automática</button>
+    </div>
+
+    <div className="holo-stage" aria-label="Escena futurista de automatización">
+      <div className="holo-orbit orbit-one" />
+      <div className="holo-orbit orbit-two" />
+      <div className="ai-robot">
+        <div className="robot-antenna" />
+        <div className="robot-head">
+          <div className="robot-eye left" />
+          <div className="robot-eye right" />
+          <div className="robot-mouth" />
+        </div>
+        <div className="robot-body">
+          <span>AI</span>
+          <small>CONTROL</small>
+        </div>
+      </div>
+      <div className="scan-beam" />
+      <div className="smart-road">
+        <div className="road-line" />
+        <div className="moving-car"><Car size={28} /></div>
+        <div className="smart-gate"><span /></div>
+      </div>
+      <div className="floating-card plate-float"><strong>HZH40F</strong><small>Placa leída</small></div>
+      <div className="floating-card pay-float"><QrCode size={20} /><small>Pago QR OK</small></div>
+      <div className="floating-card exit-float"><ShieldCheck size={20} /><small>Salida aprobada</small></div>
+      <div className="pulse-dot dot-a" />
+      <div className="pulse-dot dot-b" />
+      <div className="pulse-dot dot-c" />
+    </div>
+  </section>;
+}
+
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [vehicles, setVehicles] = useState(startingVehicles);
@@ -181,6 +222,18 @@ function App() {
       setMessage('Escenario cierre: Turno 02 queda resumido para el dueño con efectivo, digital y diferencias.');
       addEvent('Escenario: cierre automático enviado al celular');
     }
+  }
+
+
+  function runWowScene() {
+    setAutomationStep(2);
+    setSelectedPlate('HZH40F');
+    setQrPlate(null);
+    setGateOpen(true);
+    setShiftClosed(false);
+    setVehicles((prev) => prev.map((v) => v.plate === 'HZH40F' ? { ...v, paid: true, status: 'Salida aprobada' } : v));
+    setMessage('Escena automática: la IA leyó HZH40F, confirmó pago QR, autorizó salida y abrió barrera sin intervención manual.');
+    addEvent('WOW: IA leyó placa + validó pago + abrió barrera');
   }
 
   function cameraScan() {
@@ -290,6 +343,8 @@ function App() {
       </div>
       <p>La diferencia frente a lo que ya tienen: el sistema no solo registra; automatiza ingreso, pago, salida y cierre.</p>
     </section>
+
+    <WowAutomation onRun={runWowScene} />
 
     <section className="automation-story panel">
       <div className="story-head">
