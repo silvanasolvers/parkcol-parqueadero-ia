@@ -24,6 +24,12 @@ import {
   Users,
   CalendarCheck,
   KeyRound,
+  QrCode,
+  DoorOpen,
+  WalletCards,
+  RadioTower,
+  CircleDollarSign,
+  ClipboardCheck,
 } from 'lucide-react';
 import './styles.css';
 
@@ -33,104 +39,188 @@ const money = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 });
 
-const initialVehicles = [
-  { plate: 'PVT33F', type: 'Moto', service: 'Mensualidad', status: 'Dentro', paid: true, entry: '10:50', amount: 0, owner: 'Juan Camilo Londoño', camera: 'Ingreso 02' },
-  { plate: 'HZH40F', type: 'Moto', service: 'Horas', status: 'Dentro', paid: false, entry: '09:16', amount: 9000, owner: 'Visitante', camera: 'Ingreso 01' },
-  { plate: 'KXL70E', type: 'Carro', service: 'Valet', status: 'Solicitado', paid: true, entry: '08:42', amount: 18000, owner: 'Valet Parkcol', camera: 'Ingreso 03' },
-  { plate: 'IXA14F', type: 'Moto', service: 'Amanecida', status: 'Dentro', paid: false, entry: '22:31', amount: 15000, owner: 'Visitante', camera: 'Ingreso 02' },
+const baseVehicles = [
+  { plate: 'PVT33F', type: 'Moto', service: 'Mensualidad', status: 'Dentro', paid: true, entry: '10:50', amount: 0, owner: 'Juan Camilo Londoño', camera: 'CAMARA INGRESO 02', gate: 'Ingreso motos', note: 'Mensualidad activa · placa principal' },
+  { plate: 'HZH40F', type: 'Moto', service: 'Horas', status: 'Debe pagar', paid: false, entry: '09:16', amount: 9000, owner: 'Visitante', camera: 'CAMARA INGRESO 01', gate: 'Salida motos', note: 'Ticket por horas pendiente' },
+  { plate: 'KXL70E', type: 'Carro', service: 'Valet', status: 'Valet solicitado', paid: true, entry: '08:42', amount: 18000, owner: 'Valet Parkcol', camera: 'CAMARA INGRESO 03', gate: 'Valet recepción', note: 'Entrega solicitada por el cliente' },
+  { plate: 'IXA14F', type: 'Moto', service: 'Amanecida', status: 'Dentro', paid: false, entry: '22:31', amount: 15000, owner: 'Visitante', camera: 'CAMARA INGRESO 02', gate: 'Zona amanecida', note: 'Tarifa nocturna pendiente' },
 ];
 
-const cameraGrid = [
-  'Ingreso motos', 'Salida motos', 'Ingreso carros', 'Salida carros', 'Caja principal',
-  'Valet recepción', 'Zona R', 'Zona E', 'Amanecida', 'Perímetro'
+const modules = [
+  { key: 'entrada', icon: ScanLine, label: 'Ingreso con placa', action: 'Detectar placa' },
+  { key: 'pago', icon: QrCode, label: 'Pago autoservicio', action: 'Generar QR de pago' },
+  { key: 'salida', icon: DoorOpen, label: 'Salida automática', action: 'Validar salida' },
+  { key: 'cierre', icon: Smartphone, label: 'Cierre móvil', action: 'Cerrar Turno 02' },
 ];
 
 const services = [
-  { title: 'Mensualidad', icon: Crown, detail: '2 placas autorizadas, solo 1 adentro.', value: '58 clientes' },
-  { title: 'Por horas', icon: Clock3, detail: 'Cálculo automático por tiempo real.', value: '$135k hoy' },
-  { title: 'Amanecida', icon: CalendarCheck, detail: 'Tarifa nocturna y control especial.', value: '12 activas' },
-  { title: 'Valet parking', icon: KeyRound, detail: 'Recepción, custodia y entrega trazable.', value: '7 solicitudes' },
-  { title: 'Caja/Cierres', icon: ReceiptText, detail: '3 turnos, cierre móvil y auditoría.', value: 'Turno 02' },
+  { title: 'Mensualidad', icon: Crown, detail: 'Dos placas autorizadas, pero solo una puede estar adentro.', value: 'Consecutivo mensual intacto' },
+  { title: 'Por horas', icon: Clock3, detail: 'Tarifa calculada por placa, tiempo y tipo de vehículo.', value: 'Carro / moto separado' },
+  { title: 'Amanecida', icon: CalendarCheck, detail: 'Regla nocturna automática con alerta de permanencia.', value: 'Control especial' },
+  { title: 'Valet parking', icon: KeyRound, detail: 'Recepción, custodia, solicitud y entrega trazable.', value: 'Sin perder llaves' },
+  { title: 'Caja y cierres', icon: ReceiptText, detail: '3 turnos, recaudos, diferencias y cierre desde celular.', value: 'TURNO02 auditado' },
 ];
 
-function StatCard({ label, value, detail, icon: Icon, tone = 'blue' }) {
-  return <div className={`stat-card ${tone}`}>
-    <div className="stat-icon"><Icon size={20}/></div>
+const scriptByScenario = {
+  entrada: [
+    { icon: Camera, title: 'Cámara captura', text: 'Una de las 10 cámaras toma foto de la placa al entrar.' },
+    { icon: ScanLine, title: 'Lectura automática', text: 'Smart Control lee placa, tipo de vehículo y carril.' },
+    { icon: LockKeyhole, title: 'Reglas Parkcol', text: 'Valida mensualidad, pico y placa, valet o visitante por horas.' },
+    { icon: ClipboardCheck, title: 'Ticket digital', text: 'Crea el registro y lo deja visible en caja, tablero y celular.' },
+  ],
+  pago: [
+    { icon: QrCode, title: 'QR / link', text: 'Cliente escanea, digita placa o usa kiosko para ver valor.' },
+    { icon: WalletCards, title: 'Medios de pago', text: 'Nequi, PSE, tarjeta, efectivo o convenio según operación.' },
+    { icon: CheckCircle2, title: 'Conciliación', text: 'Pago entra directo a caja y queda unido al recibo/consecutivo.' },
+    { icon: ShieldCheck, title: 'Salida habilitada', text: 'La placa queda autorizada para salir sin fila.' },
+  ],
+  salida: [
+    { icon: Camera, title: 'Cámara salida', text: 'Lee placa en carril de salida y busca el registro activo.' },
+    { icon: CreditCard, title: 'Valida pago', text: 'Revisa si hay deuda, mensualidad activa o autorización valet.' },
+    { icon: DoorOpen, title: 'Abre barrera', text: 'Si cumple las reglas, marca salida aprobada.' },
+    { icon: AlertTriangle, title: 'Alerta si falla', text: 'Si falta pago o hay regla bloqueada, avisa a caja y celular.' },
+  ],
+  cierre: [
+    { icon: ReceiptText, title: 'Turno 02', text: 'Cajero finaliza turno desde caja o desde celular autorizado.' },
+    { icon: CircleDollarSign, title: 'Recaudo separado', text: 'Horas carro, horas moto, mensualidad, valet y amanecida.' },
+    { icon: BarChart3, title: 'Cruce automático', text: 'Compara efectivo, digital, recibos y diferencias.' },
+    { icon: Smartphone, title: 'Dueño informado', text: 'Envía cierre con resumen, alertas y auditoría.' },
+  ],
+};
+
+function Pill({ children, tone = 'neutral' }) {
+  return <span className={`pill ${tone}`}>{children}</span>;
+}
+
+function Metric({ icon: Icon, label, value, hint, tone = 'blue' }) {
+  return <article className={`metric ${tone}`}>
+    <span className="metric-icon"><Icon size={20} /></span>
     <div>
       <p>{label}</p>
       <strong>{value}</strong>
-      <span>{detail}</span>
+      <small>{hint}</small>
     </div>
-  </div>
-}
-
-function Pill({ children, tone = 'neutral' }) {
-  return <span className={`pill ${tone}`}>{children}</span>
+  </article>;
 }
 
 function App() {
+  const [vehicles, setVehicles] = useState(baseVehicles);
   const [scenario, setScenario] = useState('entrada');
-  const [vehicles, setVehicles] = useState(initialVehicles);
   const [selectedPlate, setSelectedPlate] = useState('HZH40F');
-  const [step, setStep] = useState(0);
+  const [stage, setStage] = useState(0);
   const [mobileMode, setMobileMode] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [qrReady, setQrReady] = useState(false);
+  const [shiftClosed, setShiftClosed] = useState(false);
+  const [events, setEvents] = useState([
+    '09:16 · HZH40F ingresó por CAMARA INGRESO 01',
+    '10:50 · PVT33F validada como mensualidad activa',
+    '10:52 · Caja TURNO02 registra recaudo parcial $135.000',
+  ]);
 
-  const selectedVehicle = vehicles.find(v => v.plate === selectedPlate) || vehicles[0];
-  const unpaid = vehicles.filter(v => !v.paid).reduce((sum, v) => sum + v.amount, 0);
-  const paidToday = vehicles.filter(v => v.paid).reduce((sum, v) => sum + v.amount, 135000);
-  const monthlyInside = vehicles.filter(v => v.service === 'Mensualidad' && v.status === 'Dentro').length;
+  const script = scriptByScenario[scenario];
+  const selected = vehicles.find((v) => v.plate === selectedPlate) || vehicles[0];
+  const unpaid = vehicles.filter((v) => !v.paid).reduce((sum, v) => sum + v.amount, 0);
+  const paidToday = 135000 + vehicles.filter((v) => v.paid).reduce((sum, v) => sum + v.amount, 0);
+  const occupancy = vehicles.filter((v) => v.status !== 'Salida aprobada').length + 110;
 
-  const flow = useMemo(() => {
-    const flows = {
-      entrada: [
-        'Cámara detecta vehículo en el carril de ingreso.',
-        'Smart Control toma foto de placa y la lee automáticamente.',
-        'El sistema valida servicio: visitante, mensualidad, amanecida o valet.',
-        'Se crea el ticket digital con QR y queda visible en caja y móvil.'
-      ],
-      pago: [
-        'Cliente escanea QR o consulta por placa.',
-        'El sistema calcula el valor exacto y muestra medios de pago.',
-        'Pago aprobado: Nequi, PSE, tarjeta o Wompi.',
-        'La salida queda autorizada sin depender del cajero.'
-      ],
-      salida: [
-        'Cámara de salida lee la placa.',
-        'Smart Control valida si hay pago, mensualidad activa o autorización valet.',
-        'Si cumple reglas, marca salida aprobada.',
-        'Si no cumple, genera alerta: pago pendiente o placa no autorizada.'
-      ],
-      cierre: [
-        'Cajero finaliza Turno 02 desde caja.',
-        'Sistema separa recaudo por horas, motos, mensualidad, valet y amanecida.',
-        'Cruza efectivo vs pagos digitales y detecta diferencias.',
-        'Dueño recibe cierre desde celular con trazabilidad completa.'
-      ],
-    };
-    return flows[scenario];
-  }, [scenario]);
+  const scenarioTitle = modules.find((m) => m.key === scenario)?.label;
+  const scenarioAction = modules.find((m) => m.key === scenario)?.action;
 
-  function simulatePayment() {
-    setVehicles(prev => prev.map(v => v.plate === selectedPlate ? { ...v, paid: true, status: 'Salida autorizada' } : v));
-    setScenario('salida');
-    setStep(2);
+  const ruleMessage = useMemo(() => {
+    if (selected.plate === 'LPR24A') return 'Mensualidad bloqueada: este cliente tiene dos placas autorizadas, pero ya hay una adentro. Requiere salida previa o autorización.';
+    if (selected.service === 'Valet') return 'Valet: se notifica al operador, se valida custodia de llaves y se registra hora de entrega.';
+    if (!selected.paid) return 'Pago pendiente: el sistema puede generar QR/link de pago y habilitar salida cuando se apruebe.';
+    return 'Vehículo validado: reglas cumplidas, sin alerta de caja.';
+  }, [selected]);
+
+  function log(message) {
+    setEvents((prev) => [`Ahora · ${message}`, ...prev].slice(0, 6));
+  }
+
+  function selectModule(key) {
+    setScenario(key);
+    setStage(0);
+    setGateOpen(false);
+    if (key !== 'pago') setQrReady(false);
+    log(`Módulo abierto: ${modules.find((m) => m.key === key).label}`);
+  }
+
+  function nextStep() {
+    setStage((prev) => Math.min(prev + 1, script.length - 1));
+    log(`${scenarioTitle}: ${script[Math.min(stage + 1, script.length - 1)].title}`);
+  }
+
+  function runScenario() {
+    if (scenario === 'entrada') return simulateEntry();
+    if (scenario === 'pago') return generatePayment();
+    if (scenario === 'salida') return validateExit();
+    return closeShift();
   }
 
   function simulateEntry() {
-    const exists = vehicles.some(v => v.plate === 'LPR24A');
-    if (!exists) {
-      setVehicles(prev => [{ plate: 'LPR24A', type: 'Moto', service: 'Mensualidad', status: 'Bloqueado', paid: true, entry: 'Ahora', amount: 0, owner: 'Mensualidad: Familia Ríos', camera: 'Ingreso 01' }, ...prev]);
-      setSelectedPlate('LPR24A');
+    const monthlyAlreadyInside = vehicles.some((v) => v.service === 'Mensualidad' && v.status === 'Dentro');
+    const newVehicle = {
+      plate: 'LPR24A', type: 'Moto', service: 'Mensualidad', status: monthlyAlreadyInside ? 'Bloqueado' : 'Dentro', paid: true,
+      entry: 'Ahora', amount: 0, owner: 'Mensualidad: Familia Ríos', camera: 'CAMARA INGRESO 01', gate: 'Ingreso motos',
+      note: monthlyAlreadyInside ? 'Segunda placa intentando entrar' : 'Mensualidad autorizada',
+    };
+    setVehicles((prev) => prev.some((v) => v.plate === 'LPR24A') ? prev.map((v) => v.plate === 'LPR24A' ? newVehicle : v) : [newVehicle, ...prev]);
+    setSelectedPlate('LPR24A');
+    setStage(3);
+    setGateOpen(!monthlyAlreadyInside);
+    log(monthlyAlreadyInside ? 'LPR24A bloqueada por regla mensualidad 2 placas / 1 adentro' : 'LPR24A ingresó automáticamente');
+  }
+
+  function generatePayment() {
+    setQrReady(true);
+    setStage(1);
+    setScenario('pago');
+    log(`QR de pago generado para ${selected.plate} por ${money.format(selected.amount)}`);
+  }
+
+  function approvePayment() {
+    setVehicles((prev) => prev.map((v) => v.plate === selectedPlate ? { ...v, paid: true, status: 'Salida habilitada', note: 'Pago digital aprobado y conciliado' } : v));
+    setQrReady(false);
+    setStage(3);
+    log(`Pago aprobado y conciliado para ${selectedPlate}`);
+  }
+
+  function validateExit() {
+    setScenario('salida');
+    const vehicle = vehicles.find((v) => v.plate === selectedPlate);
+    if (vehicle?.paid && vehicle.status !== 'Bloqueado') {
+      setGateOpen(true);
+      setStage(2);
+      setVehicles((prev) => prev.map((v) => v.plate === selectedPlate ? { ...v, status: 'Salida aprobada' } : v));
+      log(`Salida aprobada para ${selectedPlate}; barrera abierta`);
+    } else {
+      setGateOpen(false);
+      setStage(3);
+      log(`Salida bloqueada para ${selectedPlate}; pago o regla pendiente`);
     }
-    setScenario('entrada');
-    setStep(2);
+  }
+
+  function closeShift() {
+    setScenario('cierre');
+    setShiftClosed(true);
+    setStage(3);
+    log('TURNO02 cerrado desde vista móvil del dueño');
   }
 
   function resetDemo() {
-    setVehicles(initialVehicles);
-    setSelectedPlate('HZH40F');
+    setVehicles(baseVehicles);
     setScenario('entrada');
-    setStep(0);
+    setSelectedPlate('HZH40F');
+    setStage(0);
+    setGateOpen(false);
+    setQrReady(false);
+    setShiftClosed(false);
+    setEvents([
+      '09:16 · HZH40F ingresó por CAMARA INGRESO 01',
+      '10:50 · PVT33F validada como mensualidad activa',
+      '10:52 · Caja TURNO02 registra recaudo parcial $135.000',
+    ]);
   }
 
   return <main className={mobileMode ? 'app mobile-preview' : 'app'}>
@@ -140,129 +230,140 @@ function App() {
           <div className="brand-mark">P</div>
           <div>
             <strong>Parkcol Smart Control</strong>
-            <span>Demo interactivo · Sistema a la medida</span>
+            <span>Demo interactivo · Sistema propio para Parkcol</span>
           </div>
         </div>
         <div className="top-actions">
-          <button onClick={() => setMobileMode(!mobileMode)} className="ghost"><MonitorSmartphone size={17}/> {mobileMode ? 'Vista desktop' : 'Vista dueño móvil'}</button>
-          <button onClick={resetDemo} className="ghost"><RotateCcw size={17}/> Reiniciar demo</button>
+          <button onClick={() => setMobileMode(!mobileMode)} className="ghost"><MonitorSmartphone size={17} /> {mobileMode ? 'Volver a escritorio' : 'Ver como dueño en celular'}</button>
+          <button onClick={resetDemo} className="ghost"><RotateCcw size={17} /> Reiniciar demo</button>
         </div>
       </nav>
 
       <div className="hero-grid">
         <div className="hero-copy">
-          <Pill tone="gold">Operación tipo USA · diseñada para Parkcol</Pill>
-          <h1>Un solo centro de control para cámaras, caja, pagos, mensualidades y salida automática.</h1>
-          <p>Este demo muestra cómo Parkcol puede pasar de dos sistemas y operación manual a una plataforma propia, hecha sobre sus reglas reales: 10 cámaras, 3 turnos, mensualidades con dos placas, pico y placa, valet, amanecida y cierres desde celular.</p>
-          <div className="hero-cta">
-            <button onClick={simulateEntry} className="primary"><Play size={18}/> Simular ingreso con placa</button>
-            <button onClick={simulatePayment} className="secondary"><CreditCard size={18}/> Simular pago y salida</button>
+          <Pill tone="blue">Tecnología clara · operación tipo Estados Unidos</Pill>
+          <h1>El parqueadero de Parkcol operando desde un solo control inteligente.</h1>
+          <p>Haz clic en los módulos y botones: el demo cambia placas, pagos, barrera, caja, alertas y bitácora en vivo. La idea es que Parkcol vea su propia operación convertida en sistema.</p>
+          <div className="hero-actions">
+            <button onClick={simulateEntry} className="primary"><Play size={18} /> Probar ingreso mensualidad</button>
+            <button onClick={generatePayment} className="secondary"><QrCode size={18} /> Generar QR de pago</button>
+            <button onClick={validateExit} className="secondary"><DoorOpen size={18} /> Intentar salida</button>
           </div>
         </div>
-        <div className="roi-card">
-          <div className="roi-header"><BadgeDollarSign/><span>Retorno operativo esperado</span></div>
-          <div className="roi-number">menos fuga, más control</div>
-          <p>El valor no está solo en cobrar más rápido. Está en reducir errores de digitación, cerrar turnos sin fricción, detectar diferencias y darle al dueño visibilidad diaria desde el teléfono.</p>
-          <div className="roi-list">
-            <span><CheckCircle2/> Control de caja por turno</span>
-            <span><CheckCircle2/> Menos filas en pago</span>
-            <span><CheckCircle2/> Trazabilidad por placa</span>
+        <div className="impact-card">
+          <span className="impact-kicker"><BadgeDollarSign size={18} /> ROI operativo</span>
+          <strong>Menos fugas, menos filas, más control por turno.</strong>
+          <p>El retorno se siente en caja: cada placa queda trazada, cada pago conciliado y cada cierre llega al celular del dueño.</p>
+          <div className="impact-grid">
+            <span><CheckCircle2 /> Cierre TURNO02</span>
+            <span><CheckCircle2 /> Pagos conciliados</span>
+            <span><CheckCircle2 /> Alertas por placa</span>
           </div>
         </div>
       </div>
     </section>
 
-    <section className="dashboard-shell">
+    <section className="control-shell">
       <aside className="sidebar">
-        <div className="section-label">Módulos Parkcol</div>
-        {[
-          ['entrada', ScanLine, 'Ingreso inteligente'],
-          ['pago', CreditCard, 'Pago autoservicio'],
-          ['salida', ShieldCheck, 'Salida automática'],
-          ['cierre', Smartphone, 'Cierre móvil'],
-        ].map(([key, Icon, label]) => <button key={key} onClick={() => { setScenario(key); setStep(0); }} className={scenario === key ? 'active nav-btn' : 'nav-btn'}><Icon size={18}/>{label}</button>)}
+        <span className="section-label">Haz clic para probar</span>
+        {modules.map(({ key, icon: Icon, label }) => <button key={key} onClick={() => selectModule(key)} className={scenario === key ? 'nav-btn active' : 'nav-btn'}>
+          <Icon size={18} /> {label}
+        </button>)}
         <div className="sidebar-note">
-          <LockKeyhole size={18}/>
-          <p><strong>Reglas propias:</strong> mensualidad con 2 placas, solo 1 adentro; pico y placa configurable; 3 turnos de cajero.</p>
+          <RadioTower size={18} />
+          <p><strong>Reglas Parkcol:</strong> 10 cámaras, 3 turnos, mensualidad con 2 placas / 1 adentro, valet, amanecida y pico y placa.</p>
         </div>
       </aside>
 
       <div className="dashboard">
-        <div className="stats-grid">
-          <StatCard icon={Car} label="Carros dentro" value="10" detail="90 disponibles" />
-          <StatCard icon={Bike} label="Motos dentro" value="96" detail="404 disponibles" tone="green" />
-          <StatCard icon={Camera} label="Cámaras" value="10/10" detail="Ingreso, salida, valet y zonas" tone="purple" />
-          <StatCard icon={BarChart3} label="Recaudo hoy" value={money.format(paidToday)} detail={`Pendiente ${money.format(unpaid)}`} tone="gold" />
+        <div className="metrics-grid">
+          <Metric icon={Car} label="Ocupación" value={occupancy} hint="Celdas restantes 486" />
+          <Metric icon={Camera} label="Cámaras" value="10/10" hint="Ingreso · salida · zonas" tone="purple" />
+          <Metric icon={CircleDollarSign} label="Recaudo hoy" value={money.format(paidToday)} hint={`Pendiente ${money.format(unpaid)}`} tone="green" />
+          <Metric icon={ReceiptText} label="Caja activa" value="TURNO02" hint={shiftClosed ? 'Cierre enviado' : 'Lista para cierre'} tone="gold" />
         </div>
 
-        <div className="workspace-grid">
+        <div className="demo-grid">
           <section className="panel camera-panel">
             <div className="panel-head">
-              <div><span className="eyebrow">Cámara LPR</span><h2>Lectura de placa en vivo</h2></div>
-              <Pill tone={selectedVehicle.paid ? 'green' : selectedVehicle.status === 'Bloqueado' ? 'red' : 'orange'}>{selectedVehicle.status}</Pill>
+              <div><span className="eyebrow">Lectura en vivo</span><h2>{selected.camera}</h2></div>
+              <Pill tone={selected.status === 'Bloqueado' ? 'red' : selected.paid ? 'green' : 'orange'}>{selected.status}</Pill>
             </div>
             <div className="camera-feed">
+              <div className="lane-grid" />
+              <div className={gateOpen ? 'gate open' : 'gate'}>{gateOpen ? 'BARRERA ABIERTA' : 'BARRERA EN ESPERA'}</div>
               <div className="scan-line" />
               <div className="plate-card">
-                <span>PLACA DETECTADA</span>
-                <strong>{selectedVehicle.plate}</strong>
-                <small>{selectedVehicle.camera} · {selectedVehicle.type}</small>
-              </div>
-              <div className="camera-meta">
-                <span>Foto placa guardada</span>
-                <span>Confianza 98.4%</span>
+                <small>PLACA DETECTADA</small>
+                <strong>{selected.plate}</strong>
+                <span>{selected.type} · {selected.gate}</span>
               </div>
             </div>
             <div className="vehicle-summary">
-              <div><span>Servicio</span><strong>{selectedVehicle.service}</strong></div>
-              <div><span>Cliente</span><strong>{selectedVehicle.owner}</strong></div>
-              <div><span>Entrada</span><strong>{selectedVehicle.entry}</strong></div>
-              <div><span>Valor</span><strong>{selectedVehicle.amount ? money.format(selectedVehicle.amount) : 'Cubierto'}</strong></div>
+              <div><span>Servicio</span><strong>{selected.service}</strong></div>
+              <div><span>Cliente</span><strong>{selected.owner}</strong></div>
+              <div><span>Entrada</span><strong>{selected.entry}</strong></div>
+              <div><span>Valor</span><strong>{selected.amount ? money.format(selected.amount) : 'Cubierto'}</strong></div>
+            </div>
+            <div className={selected.status === 'Bloqueado' || !selected.paid ? 'rule-box warning' : 'rule-box'}>
+              <AlertTriangle size={17} /> <span>{ruleMessage}</span>
             </div>
           </section>
 
-          <section className="panel flow-panel">
+          <section className="panel action-panel">
             <div className="panel-head">
-              <div><span className="eyebrow">Demo guiado</span><h2>{scenario === 'entrada' ? 'Ingreso inteligente' : scenario === 'pago' ? 'Pago autoservicio' : scenario === 'salida' ? 'Salida automática' : 'Cierre de caja desde celular'}</h2></div>
-              <button className="mini" onClick={() => setStep((step + 1) % flow.length)}>Siguiente <ArrowRight size={15}/></button>
+              <div><span className="eyebrow">Demo interactivo</span><h2>{scenarioTitle}</h2></div>
+              <Pill tone="blue">Paso {stage + 1}/4</Pill>
             </div>
-            <div className="flow-steps">
-              {flow.map((item, i) => <div key={item} className={i <= step ? 'flow-step done' : 'flow-step'}>
-                <div className="step-index">{i + 1}</div>
-                <p>{item}</p>
-              </div>)}
+
+            <div className="stepper">
+              {script.map(({ icon: Icon, title, text }, index) => <button key={title} onClick={() => setStage(index)} className={index <= stage ? 'step-card done' : 'step-card'}>
+                <span><Icon size={18} /></span>
+                <div><strong>{title}</strong><p>{text}</p></div>
+              </button>)}
             </div>
-            <div className="smart-alert">
-              <AlertTriangle size={18}/>
-              {selectedVehicle.plate === 'LPR24A'
-                ? <span><strong>Regla mensualidad:</strong> esta cuenta tiene dos placas, pero otra placa del mismo cliente ya está dentro. El sistema bloquea o pide autorización.</span>
-                : <span><strong>Pico y placa:</strong> validación automática por último dígito y excepciones configurables para convenios, valet o autorización administrativa.</span>}
+
+            <div className="action-row">
+              <button onClick={runScenario} className="primary wide"><Zap size={17} /> {scenarioAction}</button>
+              <button onClick={nextStep} className="ghost wide">Siguiente paso <ArrowRight size={16} /></button>
             </div>
+
+            {qrReady && <div className="qr-box">
+              <div className="fake-qr"><QrCode size={54} /></div>
+              <div><strong>Pago listo para {selected.plate}</strong><p>Valor: {money.format(selected.amount)}. Al aprobar, caja y salida se actualizan automáticamente.</p><button onClick={approvePayment} className="secondary compact">Aprobar pago demo</button></div>
+            </div>}
           </section>
         </div>
 
-        <div className="lower-grid">
+        <div className="operations-grid">
           <section className="panel">
-            <div className="panel-head"><div><span className="eyebrow">Operación actualizada</span><h2>Vehículos activos</h2></div><Pill>{vehicles.length} registros</Pill></div>
-            <div className="table">
-              {vehicles.map(v => <button key={v.plate} onClick={() => setSelectedPlate(v.plate)} className={selectedPlate === v.plate ? 'row selected' : 'row'}>
-                <span className="plate-mini">{v.plate}</span>
+            <div className="panel-head"><div><span className="eyebrow">Click en una placa</span><h2>Vehículos activos</h2></div><Pill>{vehicles.length} registros</Pill></div>
+            <div className="vehicle-list">
+              {vehicles.map((v) => <button key={v.plate} onClick={() => { setSelectedPlate(v.plate); log(`Placa seleccionada: ${v.plate}`); }} className={selectedPlate === v.plate ? 'vehicle-row selected' : 'vehicle-row'}>
+                <strong>{v.plate}</strong>
                 <span>{v.type}</span>
                 <span>{v.service}</span>
-                <span>{v.paid ? <Pill tone="green">Pago OK</Pill> : <Pill tone="orange">Debe {money.format(v.amount)}</Pill>}</span>
+                <small>{v.paid ? 'Pago OK' : `Debe ${money.format(v.amount)}`}</small>
               </button>)}
             </div>
           </section>
 
           <section className="panel">
-            <div className="panel-head"><div><span className="eyebrow">Caja inteligente</span><h2>Turno 02</h2></div><Pill tone="green">Listo para cierre</Pill></div>
+            <div className="panel-head"><div><span className="eyebrow">Caja inteligente</span><h2>Cierre Turno 02</h2></div><Pill tone={shiftClosed ? 'green' : 'orange'}>{shiftClosed ? 'Enviado' : 'En proceso'}</Pill></div>
             <div className="cash-grid">
               <div><span>Horas carro</span><strong>{money.format(45000)}</strong><small>90 vehículos</small></div>
               <div><span>Horas moto</span><strong>{money.format(90000)}</strong><small>96 motos</small></div>
               <div><span>Digital</span><strong>{money.format(76000)}</strong><small>Conciliado</small></div>
-              <div><span>Efectivo</span><strong>{money.format(59000)}</strong><small>Por validar</small></div>
+              <div><span>Efectivo</span><strong>{money.format(59000)}</strong><small>Revisión cajero</small></div>
             </div>
-            <button className="full-action" onClick={() => setScenario('cierre')}>Ver cierre desde celular</button>
+            <button onClick={closeShift} className="full-action"><Smartphone size={17} /> Simular cierre desde celular</button>
+          </section>
+
+          <section className="panel live-log">
+            <div className="panel-head"><div><span className="eyebrow">Bitácora en vivo</span><h2>Lo que cambia al hacer clic</h2></div></div>
+            <div className="event-list">
+              {events.map((event) => <div key={event} className="event-item"><span />{event}</div>)}
+            </div>
           </section>
         </div>
       </div>
@@ -271,11 +372,11 @@ function App() {
     <section className="services-section">
       <div className="section-title">
         <Pill tone="blue">5 vertientes Parkcol</Pill>
-        <h2>El demo no muestra pantallas genéricas. Muestra la operación real del parqueadero.</h2>
+        <h2>Diseñado para que ellos sientan que el sistema entiende su operación, no que les estamos vendiendo una plantilla.</h2>
       </div>
       <div className="service-grid">
         {services.map(({ title, icon: Icon, detail, value }) => <article className="service-card" key={title}>
-          <Icon size={22}/>
+          <Icon size={22} />
           <strong>{title}</strong>
           <p>{detail}</p>
           <span>{value}</span>
@@ -285,16 +386,16 @@ function App() {
 
     <section className="closing-section">
       <div>
-        <Pill tone="gold">Mensaje para dirección</Pill>
-        <h2>Parkcol puede operar con menos dependencia del cajero y más trazabilidad por cada placa, peso y turno.</h2>
+        <Pill tone="gold">Mensaje comercial</Pill>
+        <h2>Parkcol no compra “otro software”. Compra control, velocidad y tranquilidad administrativa.</h2>
       </div>
       <div className="closing-grid">
-        <div><Users/><strong>Dueño con control</strong><p>Reportes, cierres y alertas desde celular, sin estar sentado en caja.</p></div>
-        <div><Zap/><strong>Cliente sin fila</strong><p>Pago QR/digital y salida validada automáticamente.</p></div>
-        <div><ReceiptText/><strong>Caja auditable</strong><p>Turnos, recaudos, diferencias y consecutivos en una sola vista.</p></div>
+        <div><Users /><strong>Dueño con control</strong><p>Cierres, alertas y reportes desde celular sin depender de estar en caja.</p></div>
+        <div><Zap /><strong>Cliente sin fila</strong><p>Pago digital, QR/link y salida validada automáticamente.</p></div>
+        <div><ReceiptText /><strong>Caja auditable</strong><p>Turnos, recaudos, diferencias, consecutivos y pagos mensuales trazados.</p></div>
       </div>
     </section>
-  </main>
+  </main>;
 }
 
 createRoot(document.getElementById('root')).render(<App />);
