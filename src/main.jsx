@@ -107,13 +107,65 @@ function Metric({ icon: Icon, label, value, hint }) {
   </article>;
 }
 
-function ActionButton({ icon: Icon, title, subtitle, onClick, tone = 'blue' }) {
-  return <button className={`big-action ${tone}`} onClick={onClick}>
+function ActionButton({ icon: Icon, title, subtitle, onClick, tone = 'blue', active = false, result = 'Ejecutar' }) {
+  return <button className={active ? `big-action ${tone} active` : `big-action ${tone}`} onClick={onClick}>
     <span><Icon size={24} /></span>
     <div><strong>{title}</strong><small>{subtitle}</small></div>
+    <em>{result}</em>
   </button>;
 }
 
+
+function OperationConsole({ activeAction, selected, qrPlate, gateOpen, shiftClosed, onScan, onPay, onApprove, onExit, onClose }) {
+  const isPaid = selected?.paid;
+  const amount = selected?.amount || 0;
+
+  if (activeAction === 'scan') {
+    return <div className="operation-console scan-console">
+      <div className="console-head"><strong>Lectura ejecutada</strong><Pill>Funcional</Pill></div>
+      <div className="console-result"><ScanLine size={20} /> Cámara tomó foto, leyó placa y aplicó reglas de negocio.</div>
+      <div className="status-steps">
+        <span className="done">Foto placa</span><span className="done">Lectura LPR</span><span className="done">Ticket creado</span>
+      </div>
+      <button className="secondary full-inline" onClick={onScan}>Leer otra placa</button>
+    </div>;
+  }
+
+  if (activeAction === 'pay') {
+    return <div className="operation-console pay-console">
+      <div className="console-head"><strong>Pago autoservicio</strong><Pill tone={qrPlate ? 'green' : 'blue'}>{qrPlate ? 'QR activo' : 'Listo'}</Pill></div>
+      {qrPlate ? <div className="qr-live">
+        <div className="qr-icon"><QrCode size={54} /></div>
+        <div><strong>QR generado para {selected.plate}</strong><small>Valor a pagar: {money.format(amount)}</small></div>
+      </div> : <div className="console-result"><QrCode size={20} /> Genera un QR real de demo para la placa seleccionada.</div>}
+      <div className="console-actions">
+        <button className="secondary" onClick={onPay}>Generar QR</button>
+        <button className="primary" onClick={onApprove} disabled={!qrPlate}>Aprobar pago</button>
+      </div>
+    </div>;
+  }
+
+  if (activeAction === 'exit') {
+    return <div className="operation-console exit-console">
+      <div className="console-head"><strong>Validación de salida</strong><Pill tone={gateOpen ? 'green' : 'orange'}>{gateOpen ? 'Barrera abierta' : 'En espera'}</Pill></div>
+      <div className="console-result"><DoorOpen size={20} /> {gateOpen ? `${selected.plate} ya puede salir.` : isPaid ? 'Pago confirmado. Ejecuta validación para abrir barrera.' : 'Pago pendiente. El sistema bloquea la salida.'}</div>
+      <div className="console-actions">
+        <button className="primary" onClick={onExit}>Validar ahora</button>
+        {!isPaid && <button className="secondary" onClick={onPay}>Cobrar primero</button>}
+      </div>
+    </div>;
+  }
+
+  return <div className="operation-console close-console">
+    <div className="console-head"><strong>Cierre de turno</strong><Pill tone={shiftClosed ? 'green' : 'orange'}>{shiftClosed ? 'Enviado' : 'Pendiente'}</Pill></div>
+    <div className="receipt-lines">
+      <div><span>Turno</span><strong>TURNO02</strong></div>
+      <div><span>Total parqueadero</span><strong>{money.format(135000)}</strong></div>
+      <div><span>Diferencia</span><strong>{shiftClosed ? '$0' : 'Por validar'}</strong></div>
+    </div>
+    <button className="primary full-inline" onClick={onClose}>{shiftClosed ? 'Enviar cierre otra vez' : 'Cerrar y enviar al celular'}</button>
+  </div>;
+}
 
 function WowAutomation({ onRun }) {
   return <section className="wow-panel">
@@ -165,6 +217,7 @@ function App() {
   const [gateOpen, setGateOpen] = useState(false);
   const [qrPlate, setQrPlate] = useState(null);
   const [shiftClosed, setShiftClosed] = useState(false);
+  const [activeAction, setActiveAction] = useState('scan');
   const [automationStep, setAutomationStep] = useState(0);
   const [events, setEvents] = useState([
     'PVT33F ingresó como mensualidad activa',
@@ -225,6 +278,7 @@ function App() {
 
 
   function runWowScene() {
+    setActiveAction('exit');
     setAutomationStep(2);
     setSelectedPlate('HZH40F');
     setQrPlate(null);
@@ -236,6 +290,7 @@ function App() {
   }
 
   function cameraScan() {
+    setActiveAction('scan');
     const monthlyInside = vehicles.some((v) => v.service === 'Mensualidad' && v.status === 'Dentro');
     const newVehicle = {
       plate: 'LPR24A', type: 'Moto', service: 'Mensualidad', status: monthlyInside ? 'Bloqueado' : 'Dentro', paid: true,
@@ -250,6 +305,7 @@ function App() {
   }
 
   function manualEntry() {
+    setActiveAction('scan');
     const plate = manualPlate.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 6);
     if (!plate) {
       setMessage('Escribe una placa para ingresarla manualmente.');
@@ -275,6 +331,7 @@ function App() {
   }
 
   function generateQR() {
+    setActiveAction('pay');
     setQrPlate(selected.plate);
     setGateOpen(false);
     setMessage(`QR de pago generado para ${selected.plate}. El cliente puede pagar sin pasar por caja.`);
@@ -282,6 +339,7 @@ function App() {
   }
 
   function approvePayment() {
+    setActiveAction('pay');
     setVehicles((prev) => prev.map((v) => v.plate === selectedPlate ? { ...v, paid: true, status: 'Pago aprobado', amount: v.amount } : v));
     setQrPlate(null);
     setMessage(`Pago aprobado para ${selectedPlate}. La salida queda habilitada.`);
@@ -289,6 +347,7 @@ function App() {
   }
 
   function validateExit() {
+    setActiveAction('exit');
     const vehicle = vehicles.find((v) => v.plate === selectedPlate);
     if (vehicle?.paid && !vehicle.status.includes('Bloqueado')) {
       setGateOpen(true);
@@ -303,6 +362,7 @@ function App() {
   }
 
   function closeShift() {
+    setActiveAction('close');
     setShiftClosed(true);
     setMessage('Turno 02 cerrado. El dueño recibe resumen de caja, pagos digitales, efectivo y diferencias.');
     addEvent('Cierre TURNO02 enviado al celular del dueño');
@@ -317,6 +377,7 @@ function App() {
     setGateOpen(false);
     setQrPlate(null);
     setShiftClosed(false);
+    setActiveAction('scan');
     setAutomationStep(0);
     setEvents(['PVT33F ingresó como mensualidad activa', 'HZH40F pendiente de pago', 'Turno 02 abierto en caja principal']);
   }
@@ -401,16 +462,24 @@ function App() {
       <aside className="panel action-panel">
         <div className="panel-title"><Zap size={20} /><div><strong>Acciones rápidas</strong><small>Haz clic y mira cómo cambia el sistema.</small></div></div>
         <div className="action-grid">
-          <ActionButton icon={Camera} title="Leer placa por cámara" subtitle="Simula LPR / ANPR" onClick={cameraScan} />
-          <ActionButton icon={QrCode} title="Generar QR de pago" subtitle="Pago autoservicio" onClick={generateQR} tone="green" />
-          <ActionButton icon={DoorOpen} title="Validar salida" subtitle="Abre o bloquea barrera" onClick={validateExit} tone="purple" />
-          <ActionButton icon={Smartphone} title="Cerrar turno" subtitle="Enviar al celular" onClick={closeShift} tone="gold" />
+          <ActionButton icon={Camera} title="Leer placa por cámara" subtitle="Ejecuta lectura y crea ticket" onClick={cameraScan} active={activeAction === 'scan'} result="Leer" />
+          <ActionButton icon={QrCode} title="Generar QR de pago" subtitle="Crea cobro para la placa" onClick={generateQR} tone="green" active={activeAction === 'pay'} result="Cobrar" />
+          <ActionButton icon={DoorOpen} title="Validar salida" subtitle="Abre o bloquea barrera" onClick={validateExit} tone="purple" active={activeAction === 'exit'} result="Validar" />
+          <ActionButton icon={Smartphone} title="Cerrar turno" subtitle="Genera cierre TURNO02" onClick={closeShift} tone="gold" active={activeAction === 'close'} result="Cerrar" />
         </div>
 
-        {qrPlate && <div className="qr-card">
-          <div className="qr-icon"><QrCode size={54} /></div>
-          <div><strong>QR listo para {qrPlate}</strong><small>Valor: {money.format(selected.amount)}</small><button onClick={approvePayment} className="secondary"><WalletCards size={16} /> Aprobar pago demo</button></div>
-        </div>}
+        <OperationConsole
+          activeAction={activeAction}
+          selected={selected}
+          qrPlate={qrPlate}
+          gateOpen={gateOpen}
+          shiftClosed={shiftClosed}
+          onScan={cameraScan}
+          onPay={generateQR}
+          onApprove={approvePayment}
+          onExit={validateExit}
+          onClose={closeShift}
+        />
       </aside>
     </section>
 
