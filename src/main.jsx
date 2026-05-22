@@ -34,6 +34,30 @@ const money = new Intl.NumberFormat('es-CO', {
   maximumFractionDigits: 0,
 });
 
+
+const automationSteps = [
+  {
+    title: 'Ingreso',
+    current: 'Hoy: cámara sirve de apoyo y el cajero digita la placa.',
+    automated: 'Smart Control lee la placa, toma foto y crea el ticket automático.',
+  },
+  {
+    title: 'Pago',
+    current: 'Hoy: el cliente depende de caja para saber cuánto debe.',
+    automated: 'El cliente paga por QR/link y el pago queda conciliado con la placa.',
+  },
+  {
+    title: 'Salida',
+    current: 'Hoy: alguien valida manualmente si puede salir.',
+    automated: 'La cámara de salida valida pago/reglas y abre o bloquea la barrera.',
+  },
+  {
+    title: 'Cierre',
+    current: 'Hoy: cierres y diferencias dependen del cajero y de revisar sistemas.',
+    automated: 'El dueño recibe Turno 02 cerrado: efectivo, digital, diferencias y recibos.',
+  },
+];
+
 const startingVehicles = [
   { plate: 'PVT33F', type: 'Moto', service: 'Mensualidad', status: 'Dentro', paid: true, entry: '10:50', amount: 0, owner: 'Juan Camilo Londoño' },
   { plate: 'HZH40F', type: 'Moto', service: 'Horas', status: 'Debe pagar', paid: false, entry: '09:16', amount: 9000, owner: 'Visitante' },
@@ -101,6 +125,7 @@ function App() {
   const [gateOpen, setGateOpen] = useState(false);
   const [qrPlate, setQrPlate] = useState(null);
   const [shiftClosed, setShiftClosed] = useState(false);
+  const [automationStep, setAutomationStep] = useState(0);
   const [events, setEvents] = useState([
     'PVT33F ingresó como mensualidad activa',
     'HZH40F pendiente de pago',
@@ -110,6 +135,7 @@ function App() {
   const selected = vehicles.find((v) => v.plate === selectedPlate) || vehicles[0];
   const unpaid = vehicles.filter((v) => !v.paid).reduce((sum, v) => sum + v.amount, 0);
   const paidToday = 135000 + vehicles.filter((v) => v.paid).reduce((sum, v) => sum + v.amount, 0);
+  const activeAutomation = automationSteps[automationStep];
 
   const statusTone = useMemo(() => {
     if (!selected) return 'blue';
@@ -120,6 +146,41 @@ function App() {
 
   function addEvent(text) {
     setEvents((prev) => [`Ahora · ${text}`, ...prev].slice(0, 5));
+  }
+
+  function advanceAutomation() {
+    const next = (automationStep + 1) % automationSteps.length;
+    setAutomationStep(next);
+    const step = automationSteps[next];
+
+    if (next === 0) {
+      setSelectedPlate('HZH40F');
+      setGateOpen(false);
+      setQrPlate(null);
+      setMessage('Escenario ingreso: la cámara lee la placa y crea el ticket sin que el cajero tenga que digitar todo.');
+      addEvent('Escenario: lectura automática de placa en ingreso');
+    }
+    if (next === 1) {
+      setSelectedPlate('HZH40F');
+      setQrPlate('HZH40F');
+      setGateOpen(false);
+      setMessage('Escenario pago: HZH40F recibe QR/link y el pago queda unido automáticamente a su placa.');
+      addEvent('Escenario: QR de pago enviado al cliente');
+    }
+    if (next === 2) {
+      setSelectedPlate('HZH40F');
+      setQrPlate(null);
+      setGateOpen(true);
+      setVehicles((prev) => prev.map((v) => v.plate === 'HZH40F' ? { ...v, paid: true, status: 'Salida aprobada' } : v));
+      setMessage('Escenario salida: la cámara valida que HZH40F ya pagó y la barrera abre automáticamente.');
+      addEvent('Escenario: salida automática aprobada para HZH40F');
+    }
+    if (next === 3) {
+      setShiftClosed(true);
+      setGateOpen(false);
+      setMessage('Escenario cierre: Turno 02 queda resumido para el dueño con efectivo, digital y diferencias.');
+      addEvent('Escenario: cierre automático enviado al celular');
+    }
   }
 
   function cameraScan() {
@@ -204,6 +265,7 @@ function App() {
     setGateOpen(false);
     setQrPlate(null);
     setShiftClosed(false);
+    setAutomationStep(0);
     setEvents(['PVT33F ingresó como mensualidad activa', 'HZH40F pendiente de pago', 'Turno 02 abierto en caja principal']);
   }
 
@@ -224,9 +286,27 @@ function App() {
     <section className="attention-strip">
       <div>
         <Pill>Operación en vivo</Pill>
-        <h1>Todo lo importante en 4 acciones.</h1>
+        <h1>Así se vería la automatización en Parkcol.</h1>
       </div>
-      <p>Escanear placa, registrar manual, cobrar y permitir salida. Sin llenar la pantalla de ruido.</p>
+      <p>La diferencia frente a lo que ya tienen: el sistema no solo registra; automatiza ingreso, pago, salida y cierre.</p>
+    </section>
+
+    <section className="automation-story panel">
+      <div className="story-head">
+        <div>
+          <Pill>Diferencia clave</Pill>
+          <h2>{activeAutomation.title}: de operación manual a operación automática</h2>
+        </div>
+        <button className="primary" onClick={advanceAutomation}><Zap size={17} /> Avanzar escenario</button>
+      </div>
+      <div className="compare-grid">
+        <div className="compare-card current"><span>Lo que hoy pasa</span><strong>{activeAutomation.current}</strong></div>
+        <div className="compare-arrow">→</div>
+        <div className="compare-card future"><span>Con Parkcol Smart Control</span><strong>{activeAutomation.automated}</strong></div>
+      </div>
+      <div className="automation-flow">
+        {automationSteps.map((item, index) => <button key={item.title} onClick={() => setAutomationStep(index)} className={index === automationStep ? 'flow-chip active' : 'flow-chip'}>{index + 1}. {item.title}</button>)}
+      </div>
     </section>
 
     <section className="metrics-row">
