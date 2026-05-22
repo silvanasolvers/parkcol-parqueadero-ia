@@ -13,7 +13,6 @@ import {
   CheckCircle2,
   ScanLine,
   ReceiptText,
-  Crown,
   Zap,
   RotateCcw,
   LogIn,
@@ -446,10 +445,6 @@ function App() {
       </article>
     </section>
 
-    <section className="sales-note">
-      <Crown size={22} />
-      <div><strong>La idea para Parkcol:</strong> que sientan que ya están viendo su propio sistema. No una propuesta técnica, sino una operación más rápida, controlada y rentable.</div>
-    </section>
   </main>;
 }
 
